@@ -1,4 +1,5 @@
 .vscode/*
 _pycache_/*
 _pycache_/*/*
+_pycache_/*/*/*
 .mypy_cache/*
