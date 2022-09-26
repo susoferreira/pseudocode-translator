@@ -1,13 +1,16 @@
-import re
 from typing import List
+from settings import settings
+
+indent_size=settings["indent_size"]
 
 class BlockDescriptor():
-    def __init__(self,block_start,block_end,block_name,block_indent):
+    def __init__(self,block_start,block_end,block_name,block_indent,block_pass):
         self.block_start=block_start
         self.block_end=block_end
         self.block_name=block_name
         self.block_indent=block_indent
         self.block_translation:str
+        self.block_pass:int = block_pass #nesting level, used to build result, also probably equivalent to block_indent
         #self.block_translated=False
         
     def get_line_count(self):
@@ -24,15 +27,41 @@ class BlockTranslator():
             "DESDE":self.translateDesde,
             }
         self.block=block
+        self.stripped_block = self.remove_indents(block)
         self.block_name :str =block_name
-        assert self.block[0].split(" ")[0]== self.block_name
+        assert self.block[0].lstrip().split(" ")[0]== self.block_name
 
+    #return text found between 2 bigger substrings in a bigger string, meant for use on single lines but should work on any string
+    def find_text_between(self,str1,str2,line):
+        return line[line.index(str1)+len(str1):line.index(str2)]
+    
+    # used for easier code parsing, indents are removed and stored, then readded
+    def store_indents(self,lines): 
+        indents=[]
+        for line in lines:
+            leading_spaces = len(line) - len(line.lstrip())
+            indents.append(leading_spaces)
+        return indents
+    def remove_indents(self,lines):
+        new_lines=[]
+        for line in lines:
+            new_lines.append(line.lstrip())
+        return new_lines
+    def re_add_indents(self,indents,text):
+        result=""
+        lines = text.split("\n")
+        for line,indentation in zip(lines,indents):
+            result+=" "*indentation+line+"\n"
+        return result
 
     def translate(self):
         if  self.block_name not in self.supported_blocks:
             print(f"bloque {self.block_name} no soportado, se marcará con un asterisco en el output, no será ejecutable directamente")
             return self.defaultHandler()
-        return self.supported_blocks[self.block_name]()
+
+        indents = self.store_indents(self.block)
+        translation = self.supported_blocks[self.block_name]().expandtabs(indent_size)
+        return self.re_add_indents(indents, translation)
 
     #marks unsupported blocks with an asterisk in their first word, so they won't be detected again and cause an infinite loop
     def defaultHandler(self):
@@ -45,7 +74,7 @@ class BlockTranslator():
     #doesn't support struct and other complex variables for now
     def translateVariables(self):
         result=""
-        lines = self.block
+        lines = self.stripped_block
         assert lines[0].strip() == "VARIABLES"
         assert lines[-1].strip() =="INICIO"
         result+="#BLOQUE VARIABLES\n"
@@ -59,23 +88,27 @@ class BlockTranslator():
     
     def translateSi(self):
         result=""
-        lines=self.block
+        lines=self.stripped_block
         assert lines[0].strip().split(" ")[0]== "SI"
         assert lines[-1].strip() =="FIN_SI"
 
-        for line in lines:
-            words =line.split(" ")
-            if words[0] == "SI":
-                words[0]="if"
-                result+=" ".join(words)+":\n"
-            elif words[0] == "SI_NO":
+        
+        # we have to make sure to translate the first and last lines of each block only once,
+        # because else we might mess with nested blocks translation
+        # other keywords dont really matter (it might be possible to add them to first_pass substitution)
+
+        expr = self.find_text_between("SI", "ENTONCES", lines[0])
+        result+=f"if {expr}:\n"
+
+        for line in lines[1:-1]: # skip first and last lines as those are handled differently
+            words =line.split(" ")                
+            if words[0] == "SI_NO":
                 words[0] = "else"
-                result+=" ".join(words)+":\n"
-            elif words[0] =="FIN_SI":
-                result+="#fin bloque SI"
-                continue
+                result+="else:\n"
             else:
                 result+="\t"+line+"\n"
+
+        result+="#"+lines[-1]+"\n"
         return result
     
     """
@@ -88,19 +121,21 @@ class BlockTranslator():
     """
     def translateCaso(self):
         result=""
-        lines=self.block
+        lines=self.stripped_block
         expr=0
         first__expr_found=False # first expression uses if, next use elif
         assert lines[0].split(" ")[0]== "CASO"
         assert lines[-1].strip() =="FIN_CASO"
+    
+        # we have to make sure to translate the first and last lines of each block only once,
+        # because else we might mess with nested blocks translation
+        # other keywords dont really matter (it might be possible to add them to first_pass substitution)
+        expr = self.find_text_between("CASO", "SEA", lines[0])
 
-        for line in lines:
+        for line in lines[1:-1]:  # skip first and last lines as those are handled differently
             words=line.split(" ")
-            if words[0] == "CASO":
-                expr = line[line.index("CASO")+len("CASO"):line.index("SEA")]
-            elif words[0] =="FIN_CASO":
-                result+=f"#{line}"
-            elif words[0] =="SI_NO":
+
+            if words[0] =="SI_NO":
                 words[0]=words[0].lstrip()
                 result+="else:\n"
             elif ":" in line:
@@ -112,49 +147,58 @@ class BlockTranslator():
                 result+=" ".join(words[2:])+"\n"
             else:
                 result+="\t"+line+"\n"
+                result+="#"+lines[-1]+"\n"
         return result
     
     def translateMientras(self):
         result=""
-        lines=self.block
+        lines=self.stripped_block
 
         assert lines[0].split(" ")[0]== "MIENTRAS"
         assert lines[-1].strip() =="FIN_MIENTRAS"
 
-        for line in lines:
+        # we have to make sure to translate the first and last lines of each block only once,
+        # because else we might mess with nested blocks translation
+        # other keywords dont really matter (it might be possible to add them to first_pass substitution)
+        expr =self.find_text_between("MIENTRAS", "HACER", lines[0])
+        result+=f"while {expr}:\n"
+
+        for line in lines[1:-1]:
             words=line.split(" ")
-            if words[0] == "MIENTRAS":
-                expr = line[line.index("MIENTRAS")+len("MIENTRAS"):line.index("HACER")]
-                result+=f"while {expr}:\n"
-            elif words[0] == "FIN_MIENTRAS":
-                result+="#FIN_MIENTRAS\n"
-            else:
-                result+="\t"+line+"\n"
+            result+="\t"+line+"\n"
+
+        result+="#FIN_MIENTRAS\n"
         return result
     
     def translateDesde(self):
         result=""
-        lines=self.block
+        lines=self.stripped_block
 
-        assert lines[0].split(" ")[0]== "DESDE"
-        assert lines[-1].strip() =="FIN_DESDE"
+        assert lines[0].split(" ")[0] == "DESDE"
+        assert lines[-1].strip() == "FIN_DESDE"
 
-        for line in lines:
+         # we have to make sure to translate the first and last lines of each block only once,
+        # because else we might mess with nested blocks translation
+        # other keywords dont really matter (it might be possible to add them to first_pass substitution)
+        var = self.find_text_between("DESDE", "HASTA", lines[0])
+        var_name = var.split("=")[0]
+        start = var.split("=")[1]
+        if "PASO" in lines[0]:
+            end = self.find_text_between("HASTA", "PASO", lines[0])
+            step =self.find_text_between("PASO", "HACER", lines[0])
+        else:
+            end = lines[0].split(" ")[-2]
+            step = 1
+        
+        if settings["range_inclusive"]:
+            end+="+1"
+
+        result+=f"for {var_name} in range({start},{end},{step}):\n"
+
+
+        for line in lines[1:-1]:
             words=line.split(" ")
-            if words[0]=="DESDE":
-                var = line[line.index("DESDE")+len("DESDE"):line.index("HASTA")]
-                var_name = var.split("=")[0]
-                start = var.split("=")[1]
-                if "PASO" in line:
-                    end = line[line.index("HASTA")+len("HASTA"):line.index("PASO")]
-                    step = line[line.index("PASO")+len("PASO"):line.index("HACER")]
-                else:
-                    end = words[-1]
-                    paso = 1
-                
-                result+=f"for {var_name} in range({start},{end},{step}):\n"
-            elif words[0] == "FIN_DESDE":
-                result+="#FIN DESDE\n"
-            else:
-                result+="\t"+line+"\n"
+            result+="\t"+line+"\n"
+        result+=f"{var_name.lstrip()}+=1\n "
+        result+="#FIN DESDE\n"
         return result
