@@ -18,7 +18,7 @@ A veces, el programa fallará si inicia un bloque de código en la línea inmedi
 - ##### Symbols
     - Puede traducir básicamente todos los símbolos de pseudocódigo (también admite comentarios de estilo c), para obtener una lista más exhaustiva de cada símbolo y su equivalente: ```main.py``` lines 116-132
 - ##### Code blocks
-    -Actualmente soporta  ```"VARIABLES","SI"(IF),"CASO"(CASE),"MIENTRAS"(WHILE) AND "DESDE"(FOR)``
+    -Actualmente soporta  ```"VARIABLES","SI"(IF),"CASO"(CASE),"MIENTRAS"(WHILE) AND "DESDE"(FOR)```
     - Anidado de bloques de código (Hasta que se pruebe lo contrario) 
 
 - ##### Missing
