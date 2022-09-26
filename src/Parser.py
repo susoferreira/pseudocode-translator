@@ -1,4 +1,6 @@
 
+from .block import BlockDescriptor, BlockTranslator
+from .settings import settings
 
 class Parser():
 

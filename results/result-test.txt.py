@@ -29,12 +29,6 @@ def main():    # nombre del algoritmo:SUMAR
         print("cosa 4")
     #FIN_SI
     
-    if  5==4 :
-        print("cosa 5")
-    else:
-        print("cosa 6")
-    #FIN_SI
-    
     if  x*3  == 1:print("X POR 3 ES 1")
     elif  x*3  == 2:print("X POR 3 ES 2")
     elif  x*3  == 3:print("X POR 3 ES 3")

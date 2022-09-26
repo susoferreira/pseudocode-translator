@@ -1,9 +1,10 @@
 #!/usr/bin/python3
+
 import os
 import sys
-from block import BlockDescriptor, BlockTranslator
+
 from src.Parser import Parser
-from settings import settings
+from src.settings import settings
 
 def __init__():
     file=sys.argv[1]

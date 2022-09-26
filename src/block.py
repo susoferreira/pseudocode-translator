@@ -1,5 +1,5 @@
 from typing import List
-from settings import settings
+from .settings import settings
 
 indent_size=settings["indent_size"]
 
