@@ -3,6 +3,10 @@ Program to translate pseudocode into a executable python script
 ## Usage:
   - Download the repository and run ```main.py file_name``` with python, it will translate the pseudocode inside the file, save it into  ```results/``` folder and try to run it, if it doesn't work automatically, you can open the resulting code to get insight into what might be the problem (and open a github issue if it is a bug)
 
+  - ###### Windows only
+
+    - Dragging and dropping any text file to ```main.py``` (open with) should work instead of opening it from the console 
+
 ## Important
 
 Sometimes the program will break if you start a code block the line immediately after the ```INICIO``` keyword  (like in ```tests/test-broken.txt```), just leaving an empty line (like in ```tests/test.txt```) should work

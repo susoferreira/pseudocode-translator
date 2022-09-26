@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import platform
 import sys
 
 from src.Parser import Parser
@@ -22,5 +23,7 @@ def __init__():
     print("si no se ejecuta automáticamente puedes revisar el archivo result.py manualmente e intentar ejecutarlo")
     print("\n"*3)
     os.system("python ./results/result-{}.py".format(file.split("/")[-1]))
+    if platform.system() == "Windows":
+        os.system("pause")
 
 __init__()

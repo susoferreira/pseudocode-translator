@@ -2,6 +2,11 @@ Programa para traducir pseudocódigo a un script ejecutable de python.
 
 ## Uso:
   - Descarga el repositorio y ejecuta ```main.py file_name``` con  python, traducirá el pseudocódigo dentro del archivo, lo guardará en la carpeta ```results/```  e intentará ejecutarlo, si no funciona automáticamente, puede abrir el código resultante para obtener una idea de cuál podría ser el problema (y abrir un problema de github si es un bug).
+  - ###### Solo windows
+
+    - Arrastrar cualquier archivo de texto a ```main.py``` en vez de ejecutarlo desde la consola de comandos debería funcionar (abrir con...)
+
+
 
 ## Importante
 
