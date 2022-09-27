@@ -11,6 +11,8 @@ class BlockDescriptor():
         self.block_indent=block_indent
         self.block_translation:str
         self.block_pass:int = block_pass #nesting level, used to build result, also probably equivalent to block_indent
+        self.block_uid_start = "{" +f" {block_name}-{block_start}-{block_end}_START" +"}"
+        self.block_uid_end = "{" +f" {block_name}-{block_start}-{block_end}_END" +"}"
         #self.block_translated=False
         
     def get_line_count(self):
@@ -35,6 +37,7 @@ class BlockTranslator():
     def find_text_between(self,str1,str2,line):
         return line[line.index(str1)+len(str1):line.index(str2)]
     
+
     # used for easier code parsing, indents are removed and stored, then readded
     def store_indents(self,lines): 
         indents=[]

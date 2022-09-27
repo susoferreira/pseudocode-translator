@@ -9,8 +9,8 @@ Programa para traducir pseudocódigo a un script ejecutable de python.
 
 
 ## Importante
-
-A veces, el programa fallará si inicia un bloque de código en la línea inmediatamente después de la palabra clave```INICIO```   (como en ```tests/test-broken.txt```), dejar una linea vacía (como en ```tests/test.txt```) debería bastar.
+- Funciona todo menos los operadores <= y >= y posiblemente algún símbolo más
+- El bloque hacer... mientras aún no está implementado 
 
 ### Problemas:
 
@@ -18,16 +18,17 @@ A veces, el programa fallará si inicia un bloque de código en la línea inmedi
   - ​	(```o``` e ```y``` actualmente están deshabilitados debido a esos problemas, puede volver a habilitarlos descomentando las líneas correspondientes en la clase ```Parser``` en ```main.py``` ) 
 - Este programa simplemente traduce el pseudocódigo a python equivalente, no lo valida, por ejemplo, podría tener 2 bloques "VARIABLES" o incluso variables fuera de ese bloque y no arrojaría un error, de manera similar, si hay errores en el pseudocódigo se traducirán a python
 
-### Support:
+### Soporte:
 
-- ##### Symbols
+- ##### Simbolos
     - Puede traducir básicamente todos los símbolos de pseudocódigo (también admite comentarios de estilo c), para obtener una lista más exhaustiva de cada símbolo y su equivalente: ```main.py``` lines 116-132
-- ##### Code blocks
-    -Actualmente soporta  ```"VARIABLES","SI"(IF),"CASO"(CASE),"MIENTRAS"(WHILE) AND "DESDE"(FOR)```
+- ##### Bloques de codigo
+    - Actualmente soporta  ```"VARIABLES","SI"(IF),"CASO"(CASE),"MIENTRAS"(WHILE) AND "DESDE"(FOR)```
     - Anidado de bloques de código (Hasta que se pruebe lo contrario) 
 
-- ##### Missing
-    -Soporte para  ```Struct``` y otros tipos complejos de variables
-    -Soporte para ```"LEER(x)" (x = input())```
-    -~~Soporte para el anidado de bloques de código ~
+- ##### Falta
+    - Soporte para  ```Struct``` y otros tipos complejos de variables
+    - Soporte para ```"LEER(x)" (x = input())```
+    - Soporte para el bloque ```HACER... MIENTRAS```
+    -~~Soporte para el anidado de bloques de código~~
 
