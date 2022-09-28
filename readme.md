@@ -10,7 +10,7 @@ Programa para traducir pseudocódigo a un script ejecutable de python.
 
 ## Importante
 - Funciona todo menos los operadores <= y >= y posiblemente algún símbolo más
-- El bloque hacer... mientras aún no está implementado 
+- ~~El bloque hacer... mientras aún no está implementado~~
 
 ### Problemas:
 
@@ -23,12 +23,12 @@ Programa para traducir pseudocódigo a un script ejecutable de python.
 - ##### Simbolos
     - Puede traducir básicamente todos los símbolos de pseudocódigo (también admite comentarios de estilo c), para obtener una lista más exhaustiva de cada símbolo y su equivalente: ```main.py``` lines 116-132
 - ##### Bloques de codigo
-    - Actualmente soporta  ```"VARIABLES","SI"(IF),"CASO"(CASE),"MIENTRAS"(WHILE) AND "DESDE"(FOR)```
+    - Actualmente soporta  ```"VARIABLES","SI"(IF),"CASO"(CASE),"MIENTRAS"(WHILE),"DESDE"(FOR), y HACER...MIENTRAS(DO..WHILE) ```
     - Anidado de bloques de código (Hasta que se pruebe lo contrario) 
 
 - ##### Falta
     - Soporte para  ```Struct``` y otros tipos complejos de variables
     - Soporte para ```"LEER(x)" (x = input())```
-    - Soporte para el bloque ```HACER... MIENTRAS```
+
     -~~Soporte para el anidado de bloques de código~~
 
