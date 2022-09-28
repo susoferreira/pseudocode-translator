@@ -9,7 +9,7 @@ Programa para traducir pseudocódigo a un script ejecutable de python.
 
 
 ## Importante
-- Funciona todo menos los operadores <= y >= y posiblemente algún símbolo más
+- Funciona todo menos ~~los operadores <= y >=~~ y posiblemente algún símbolo más
 - ~~El bloque hacer... mientras aún no está implementado~~
 
 ### Problemas:

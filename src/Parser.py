@@ -17,7 +17,8 @@ class Parser():
         self.syntax_pass_count=0
         self.result=""
         self.blocks_found:List[BlockDescriptor]=[]
-        self.substitutions = props.substitutions
+        self.first_substitution = props.first_substitution
+        self.second_substitution = props.second_substitution
         self._get_max_indent_level()
 
     def parse(self):
@@ -68,9 +69,18 @@ class Parser():
             if new_line.split(" ")[0] == "ALGORITMO":
                 s+="# nombre del algoritmo:"+new_line.split(" ")[-1]+"\n"
                 continue
-            for word in self.substitutions:
+            for word in self.first_substitution:
                 if word in new_line:
-                    new_line=new_line.replace(word,self.substitutions[word])
+                    new_line=new_line.replace(word,self.first_substitution[word])
+            s+=new_line+"\n"
+        self.first_pass_result=s[:-1] # [:-1] to eliminate last newline
+
+        s=""
+        for line in self.first_pass_result.split("\n"):
+            new_line=line.lstrip()
+            for word in self.second_substitution:
+                if word in new_line:
+                    new_line=new_line.replace(word,self.second_substitution[word])
             s+=new_line+"\n"
         self.first_pass_result=s[:-1] # [:-1] to eliminate last newline
         assert len(self.first_pass_result.split("\n")) == len(self.code.split("\n"))
