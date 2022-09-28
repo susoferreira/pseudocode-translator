@@ -1,7 +1,10 @@
 
 from .block import BlockDescriptor, BlockTranslator
-from .settings import settings
+from .properties import settings
 from typing import List
+import src.properties as props
+
+
 class Parser():
 
 
@@ -14,23 +17,7 @@ class Parser():
         self.syntax_pass_count=0
         self.result=""
         self.blocks_found:List[BlockDescriptor]=[]
-        self.substitutions = {
-            #"y" : "and", 
-            #"o" : "or",
-            "MOD" : "%",
-            "DIV" : "//",
-            "^" : "**",
-            "=" : "==",
-            "no" : "not",
-            "<>" : "!=",
-            "<-" :"=",
-            "CONTINUAR" : "continue",
-            "INTERRUMPIR": "break",
-            "ESCRIBIR":"print",
-            "//":"#",
-            "/*":"\"\"\"",
-            "*/":"\"\"\""
-        }
+        self.substitutions = props.substitutions
         self._get_max_indent_level()
 
     def parse(self):
@@ -101,13 +88,7 @@ class Parser():
         block_indent=0
         block_found=False
         block_already_found = False
-        syntax_blocks={
-            "VARIABLES":"INICIO",
-            "SI":"FIN_SI",
-            "CASO":"FIN_CASO",
-            "MIENTRAS":"FIN_MIENTRAS",
-            "DESDE":"FIN_DESDE"
-            }
+        syntax_blocks=props.syntax_blocks
     
         for indent,enumeration in zip(self._get_indents()[last_block_end:],enumerate(lines[last_block_end:])):
             i=enumeration[0]+last_block_end
@@ -115,7 +96,7 @@ class Parser():
             for block in syntax_blocks:
                 if line.lstrip().split(" ")[0] == block: # first word
                     for found_block in self.blocks_found:
-                        if i == found_block.block_start:
+                        if i == found_block.block_start or i==found_block.block_end:
                             block_already_found=True # block has already been found in an earlier pass
                             break
                     if block_already_found:

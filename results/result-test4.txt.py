@@ -6,7 +6,9 @@ def main():
     i = 3
     j = 5
     while  i > 0 :
+    
         while  j > 5 :
+        
             r = i*j
             if  r % 5 == 6 :
                 print (r)

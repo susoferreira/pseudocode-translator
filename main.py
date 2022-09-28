@@ -5,7 +5,7 @@ import platform
 import sys
 
 from src.Parser import Parser
-from src.settings import settings
+from src.properties import settings
 
 def __init__():
     file=sys.argv[1]

@@ -10,6 +10,7 @@ def main():
     stop = 1
     n = 4
     for  i in range(0 ,n+1,1):
+    
         if  stop != 0 :
             if  i==n/2 :
                 stop = 0
@@ -20,6 +21,7 @@ def main():
         #FIN_SI
         
     i+=1
+     #FIN DESDE
     
     print(i,suma,stop,n)
 main()

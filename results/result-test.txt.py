@@ -10,10 +10,13 @@ def main():
     multi
     linea"""
     while  x < 10 :
+    
         for  i  in range( 0 , 20 +1, 7 ):
+        
             print(i)
             x = x+1
         i +=1
+         #FIN DESDE
         
     #FIN_MIENTRAS
     
@@ -42,6 +45,5 @@ def main():
     else:
         print("X POR 3 ES UN VALOR INESPERADO")
     #FIN_CASO
-    
     
 main()

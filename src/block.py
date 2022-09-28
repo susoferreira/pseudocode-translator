@@ -1,6 +1,6 @@
 from typing import List
-from .settings import settings
-
+from .properties import settings
+import src.properties as props
 indent_size=settings["indent_size"]
 
 class BlockDescriptor():
@@ -21,12 +21,13 @@ class BlockDescriptor():
 
 class BlockTranslator():
     def __init__(self,block:List[str],block_name):
-        self.supported_blocks = {
+        self.supported_blocks ={
             "VARIABLES":self.translateVariables,
             "SI":self.translateSi,
             "CASO":self.translateCaso,
             "MIENTRAS":self.translateMientras,
             "DESDE":self.translateDesde,
+            "HACER":self.translateDoWhile,
             }
         self.block=block
         self.stripped_block = self.remove_indents(block)
@@ -62,9 +63,10 @@ class BlockTranslator():
             print(f"bloque {self.block_name} no soportado, se marcará con un asterisco en el output, no será ejecutable directamente")
             return self.defaultHandler()
 
-        indents = self.store_indents(self.block)
+        #indents = self.store_indents(self.block)
         translation = self.supported_blocks[self.block_name]().expandtabs(indent_size)
-        return self.re_add_indents(indents, translation)
+        return translation
+        #return self.re_add_indents(indents, translation)
 
     #marks unsupported blocks with an asterisk in their first word, so they won't be detected again and cause an infinite loop
     def defaultHandler(self):
@@ -77,7 +79,7 @@ class BlockTranslator():
     #doesn't support struct and other complex variables for now
     def translateVariables(self):
         result=""
-        lines = self.stripped_block
+        lines = self.block
         assert lines[0].strip() == "VARIABLES"
         assert lines[-1].strip() =="INICIO"
         result+="#BLOQUE VARIABLES\n"
@@ -91,7 +93,7 @@ class BlockTranslator():
     
     def translateSi(self):
         result=""
-        lines=self.stripped_block
+        lines=self.block
         assert lines[0].strip().split(" ")[0]== "SI"
         assert lines[-1].strip() =="FIN_SI"
 
@@ -124,7 +126,7 @@ class BlockTranslator():
     """
     def translateCaso(self):
         result=""
-        lines=self.stripped_block
+        lines=self.block
         expr=0
         first__expr_found=False # first expression uses if, next use elif
         assert lines[0].split(" ")[0]== "CASO"
@@ -155,7 +157,7 @@ class BlockTranslator():
     
     def translateMientras(self):
         result=""
-        lines=self.stripped_block
+        lines=self.block
 
         assert lines[0].split(" ")[0]== "MIENTRAS"
         assert lines[-1].strip() =="FIN_MIENTRAS"
@@ -166,21 +168,20 @@ class BlockTranslator():
         expr =self.find_text_between("MIENTRAS", "HACER", lines[0])
         result+=f"while {expr}:\n"
 
-        for line in lines[1:-1]:
-            words=line.split(" ")
-            result+="\t"+line+"\n"
+        codigo = lines[1:][:-1] #lines[1:-1] works differently than doing it separately idk why
+        result+="\n\t"+"\n\t".join(codigo)+"\n"
 
         result+="#FIN_MIENTRAS\n"
         return result
     
     def translateDesde(self):
         result=""
-        lines=self.stripped_block
+        lines=self.block
 
         assert lines[0].split(" ")[0] == "DESDE"
         assert lines[-1].strip() == "FIN_DESDE"
 
-         # we have to make sure to translate the first and last lines of each block only once,
+        # we have to make sure to translate the first and last lines of each block only once,
         # because else we might mess with nested blocks translation
         # other keywords dont really matter (it might be possible to add them to first_pass substitution)
         var = self.find_text_between("DESDE", "HASTA", lines[0])
@@ -198,10 +199,46 @@ class BlockTranslator():
 
         result+=f"for {var_name} in range({start},{end},{step}):\n"
 
+        codigo = lines[1:][:-1] #lines[1:-1] works differently than doing it separately idk why
+        result+="\n\t"+"\n\t".join(codigo)+"\n"
 
-        for line in lines[1:-1]:
+        """for line in lines[1:-1]:
             words=line.split(" ")
-            result+="\t"+line+"\n"
+            result+="\t"+line+"\n"""
         result+=f"{var_name.lstrip()}+=1\n "
         result+="#FIN DESDE\n"
+        return result
+    
+
+
+    """
+    HACER
+        codigo
+    MIENTRAS condicion
+
+    =================
+
+    codigo
+    while condicion:
+        codigo
+    
+    
+    """
+    def translateDoWhile(self):
+        result=""
+        lines=self.block
+
+        assert lines[0].split(" ")[0] == "HACER"
+        assert lines[-1].strip().split(" ")[0] == "MIENTRAS"
+
+        # we have to make sure to translate the first and last lines of each block only once,
+        # because else we might mess with nested blocks translation
+        # other keywords dont really matter (it might be possible to add them to first_pass substitution)
+        expr =lines[-1][lines[-1].index("MIENTRAS")+len("MIENTRAS"):]
+        codigo = lines[1:][:-1] #lines[1:-1] works differently than doing it separately idk why
+        result+="\n".join(codigo)+"\n"
+        result+=f"while {expr}:\n"
+        result+="\t"+"\n\t".join(codigo)+"\n"
+
+        result+="#FIN_DO_WHILE\n"
         return result
